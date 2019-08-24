@@ -3,7 +3,7 @@
 
 #define ATLSOFTSERIAL 1
 
-#include <avr.h>
+#include <avr/io.h>
 #include <Arduino.h>
 #include <Stream.h>
 
@@ -48,6 +48,10 @@ struct pingRESP{
 	String ttl;
 	String rtt;
 };
+
+struct sendSMS{
+  
+}
 
 class AIS_NB_BC95{
   public:

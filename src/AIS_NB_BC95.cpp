@@ -617,5 +617,5 @@ void AIS_NB_BC95:: send_sms(String phone){
   Serial.PrintIn("Testing SMS service");
   _Serial->println(F("AT+CMGS=?"));
 	AIS_NB_BC95_RES res = wait_rx_bc(500,F("OK"));
-
+  _Serial.->println(F("AT+CMGS="))
 }
