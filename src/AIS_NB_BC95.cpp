@@ -32,8 +32,7 @@ AIS_NB_BC95::AIS_NB_BC95()
 	Event_debug =  event_null;
 }
 
-void AIS_NB_BC95:: setupDevice(String serverPort)
-{
+void AIS_NB_BC95:: setupDevice(String serverPort){
 	myserial.begin(9600);
     _Serial = &myserial;
 
@@ -53,48 +52,38 @@ void AIS_NB_BC95:: setupDevice(String serverPort)
 	createUDPSocket(serverPort);
 }
 
-void AIS_NB_BC95:: reset()
-{
+void AIS_NB_BC95:: reset(){
 	rebootModule();
-	while (!setPhoneFunction(1))
-	{
+	while (!setPhoneFunction(1)){
 		Serial.print(F("."));
 	}
 	Serial.println();
 }
 
-void AIS_NB_BC95:: rebootModule()
-{
-	//delay(1000);
-
+void AIS_NB_BC95:: rebootModule(){
 	_Serial->println(F("AT"));
 	AIS_NB_BC95_RES res = wait_rx_bc(500,F("OK"));
 	_Serial->println(F("AT+NRB"));
 	if (debug) Serial.print(F("# Reboot Module"));
-	while (!waitReady());
-	{
+	while (!waitReady());{
 		if (debug) Serial.print(F("."));
 	}
     _Serial->flush();
 	delay(5000);
 }
 
-bool AIS_NB_BC95:: waitReady()
-{
+bool AIS_NB_BC95:: waitReady(){
 	static bool reset_state=false;
-	if(_Serial->available())
-	{
+	if(_Serial->available()){
 		String input = _Serial->readStringUntil('\n');
-		if(input.indexOf(F("OK"))!=-1)
-		{
+		if(input.indexOf(F("OK"))!=-1){
 				return(true);
 		}
 	}
 	return(false);
 }
 
-bool AIS_NB_BC95:: setPhoneFunction(unsigned char mode)
-{
+bool AIS_NB_BC95:: setPhoneFunction(unsigned char mode){
 	_Serial->print(F("AT+CFUN="));
 	_Serial->println(mode);
 	AIS_NB_BC95_RES res = wait_rx_bc(1000,F("OK"));
@@ -102,8 +91,7 @@ bool AIS_NB_BC95:: setPhoneFunction(unsigned char mode)
 	return(res.status);
 }
 
-String AIS_NB_BC95:: getIMEI()
-{
+String AIS_NB_BC95:: getIMEI(){
 	String out;
 	_Serial->println(F("AT+CGSN=1"));
 	AIS_NB_BC95_RES res = wait_rx_bc(1000,F("OK"));
@@ -118,8 +106,7 @@ String AIS_NB_BC95:: getIMEI()
 	return (out);
 }
 
-String AIS_NB_BC95:: getFirmwareVersion()
-{
+String AIS_NB_BC95:: getFirmwareVersion(){
 	_Serial->println(F("AT+CGMR"));
 	AIS_NB_BC95_RES res = wait_rx_bc(1000,F("OK"));
 	String out = res.temp;
@@ -130,8 +117,8 @@ String AIS_NB_BC95:: getFirmwareVersion()
 	res = wait_rx_bc(500,F("OK"));
 	return (out);
 }
-String AIS_NB_BC95:: getIMSI()
-{
+
+String AIS_NB_BC95:: getIMSI(){
 	_Serial->println(F("AT+CIMI"));
 	AIS_NB_BC95_RES res = wait_rx_bc(1000,F("OK"));
 	String out = res.temp;
@@ -141,16 +128,14 @@ String AIS_NB_BC95:: getIMSI()
 	return (out);
 }
 
-pingRESP AIS_NB_BC95:: pingIP(String IP)
-{
+pingRESP AIS_NB_BC95:: pingIP(String IP){
 	pingRESP pingr;
 	String data = "";
 	_Serial->println("AT+NPING=" + IP);
 
 	AIS_NB_BC95_RES res = wait_rx_bc(3000,F("+NPING"));
 
-	if(res.status)
-	{
+	if(res.status){
 		data = res.data;
 		_Serial->println(data);
 		int index = data.indexOf(F(":"));
@@ -168,40 +153,36 @@ pingRESP AIS_NB_BC95:: pingIP(String IP)
 	return pingr;
 }
 
-String AIS_NB_BC95:: getDeviceIP()
-{
+String AIS_NB_BC95:: getDeviceIP(){
 	String data = "";
 	_Serial->println(F("AT+CGPADDR"));
 	AIS_NB_BC95_RES res = wait_rx_bc(3000,F("+CGPADDR"));
-	if(res.status)
-	{
+	if(res.status){
 		data = res.data;
 		int index = data.indexOf(F(":"));
 		int index2 = data.indexOf(F(","));
 		data = res.data.substring(index2+1,data.length());
 		if (debug) Serial.println("# Device IP: "+data);
 
-	}else {data = "";}
+	} else 
+      data = "";
 	res = wait_rx_bc(500,F("OK"));
 	return data;
 }
 
-bool AIS_NB_BC95:: setAutoConnectOn()
-{
+bool AIS_NB_BC95:: setAutoConnectOn(){
 	_Serial->println(F("AT+NCONFIG=AUTOCONNECT,TRUE"));
 	AIS_NB_BC95_RES res = wait_rx_bc(1000,F("OK"));
 	return(res.status);
 }
 
-bool AIS_NB_BC95:: setAutoConnectOff()
-{
+bool AIS_NB_BC95:: setAutoConnectOff(){
 	_Serial->println(F("AT+NCONFIG=AUTOCONNECT,FALSE"));
 	AIS_NB_BC95_RES res = wait_rx_bc(1000,F("OK"));
 	return(res.status);
 }
 
-String AIS_NB_BC95:: getNetworkStatus()
-{
+String AIS_NB_BC95:: getNetworkStatus(){
 	String out = "";
 	String data = "";
 
@@ -209,8 +190,7 @@ String AIS_NB_BC95:: getNetworkStatus()
 	AIS_NB_BC95_RES res = wait_rx_bc(500,F("OK"));
 	_Serial->println(F("AT+CEREG?"));
 	 res = wait_rx_bc(2000,F("+CEREG"));
-     if(res.status)
-	{
+     if(res.status){
 		data = res.data;
 		int index = data.indexOf(F(":"));
 		int index2 = data.indexOf(F(","));
@@ -227,7 +207,6 @@ String AIS_NB_BC95:: getNetworkStatus()
 			out = F("Trying");
 		}
 	if (debug) Serial.println("# Get Network Status : " + out);
-
 	}
 	res = wait_rx_bc(1000,F("OK"));
 	_Serial->flush();
@@ -243,14 +222,12 @@ bool AIS_NB_BC95:: setAPN(String apn)
 	return(res.status);
 }*/
 
-String AIS_NB_BC95:: getAPN()
-{
+String AIS_NB_BC95:: getAPN(){
 	String data="";
 	String out="";
 	_Serial->println(F("AT+CGDCONT?"));
 	AIS_NB_BC95_RES res = wait_rx_bc(2000,F("+CGDCONT"));
-	if(res.status)
-	{
+	if(res.status){
 		int index=0;
 		int index2=0;
 		data = res.data;
@@ -269,31 +246,26 @@ String AIS_NB_BC95:: getAPN()
 bool AIS_NB_BC95:: attachNB(String serverPort)
 {
 	bool ret=false;
-	if(!getNBConnect())
-	{
+	if(!getNBConnect()){
 		if (debug) Serial.print(F("# Connecting NB-IoT Network"));
-		for(int i=1;i<60;i+=1)
-		{
+		for(int i=1;i<60;i+=1){
 				setPhoneFunction(1);
 				setAutoConnectOn();
 				cgatt(1);
 				delay(3000);
-				if(getNBConnect())
-					{ 				  
+				if(getNBConnect()){ 				  
 					  ret=true;
 					  break;
 					}
 				Serial.print(F("."));
 		}
-	} else
-		{
+	} else{
 			return true;
 		}
 
-	if (ret)
-	{
+	if (ret){
 		if (debug) Serial.print(F("> Connected"));
-	    createUDPSocket(serverPort);
+	  createUDPSocket(serverPort);
 	}
 	else {
 			if (debug) Serial.print(F("> Disconnected"));
@@ -301,69 +273,59 @@ bool AIS_NB_BC95:: attachNB(String serverPort)
 	if (debug) Serial.println(F("\n################################################################"));
 	return ret;
 }
-bool AIS_NB_BC95:: detachNB()
-{
+
+bool AIS_NB_BC95:: detachNB(){
 	bool ret=false;
 	_Serial->flush();
 	if (debug) Serial.print(F("# Disconnecting NB-IoT Network"));
 	cgatt(0);
 	delay(1000);
-	for(int i=1;i<60;i+=1)
-	{
+	for(int i=1;i<60;i+=1){
 		Serial.print(F("."));
-		if(!getNBConnect())
-		{ ret=true; break;}
-
+		if(!getNBConnect()){ 
+      ret=true; break;
+    }
 	}
 	if (debug) Serial.println(F("> Disconnected"));
 	return ret;
 }
 
-bool AIS_NB_BC95:: cgatt(unsigned char mode)
-{
+bool AIS_NB_BC95:: cgatt(unsigned char mode){
 	_Serial->print("AT+CGATT=");
 	_Serial->println(mode);
 	AIS_NB_BC95_RES res = wait_rx_bc(5000,F("OK"));
 	return(res.status);
 }
 
-bool AIS_NB_BC95:: getNBConnect()
-{
+bool AIS_NB_BC95:: getNBConnect(){
 	_Serial->println(F("AT+CGATT?"));
 	AIS_NB_BC95_RES res = wait_rx_bc(500,F("+CGATT"));
 	bool ret;
-	if(res.status)
-	{
-        if(res.data.indexOf(F("+CGATT:0"))!=-1)
+	if(res.status){
+      if(res.data.indexOf(F("+CGATT:0"))!=-1)
 			ret = false;
-		if(res.data.indexOf(F("+CGATT:1"))!=-1)
+		  if(res.data.indexOf(F("+CGATT:1"))!=-1)
 			ret = true;
 	}
 	res = wait_rx_bc(500,F("OK"));
 	return(ret);
 }
 
-signal AIS_NB_BC95:: getSignal()
-{
+signal AIS_NB_BC95:: getSignal(){
 	_Serial->println(F("AT+CSQ"));
 	AIS_NB_BC95_RES res = wait_rx_bc(500,F("+CSQ"));
 	signal sig;
 	int x = 0;
 	String tmp;
-	if(res.status)
-	{
-		if(res.data.indexOf(F("+CSQ"))!=-1)
-		{
+	if(res.status){
+		if(res.data.indexOf(F("+CSQ"))!=-1){
 			int index = res.data.indexOf(F(":"));
 			int index2 = res.data.indexOf(F(","));
 			tmp = res.data.substring(index+1,index2);
-			if (tmp == F("99"))
-			{
+			if (tmp == F("99")){
 				sig.csq = F("N/A");
 				sig.rssi = F("N/A");
-			}
-			else
-			{
+			} else{
 				sig.csq = tmp;
 				x = tmp.toInt();
 				x = (2*x)-113;
@@ -377,8 +339,7 @@ signal AIS_NB_BC95:: getSignal()
 	return(sig);
 }
 
-void AIS_NB_BC95:: createUDPSocket(String port)
-{
+void AIS_NB_BC95:: createUDPSocket(String port){
 	_Serial->print(F("AT+NSOCR=DGRAM,17,"));
 	_Serial->println(port+",1");
 	AIS_NB_BC95_RES res = wait_rx_bc(3000,F("OK"));
@@ -388,13 +349,11 @@ void AIS_NB_BC95:: createUDPSocket(String port)
 
 }
 
-UDPSend AIS_NB_BC95:: sendUDPmsg( String addressI,String port,unsigned int len,char *data,unsigned char send_mode)
-{
+UDPSend AIS_NB_BC95:: sendUDPmsg( String addressI,String port,unsigned int len,char *data,unsigned char send_mode){
 	sendMode = send_mode;
 
 	UDPSend ret;
-    if(!attachNB(port))
-    {
+    if(!attachNB(port)){
 		if (debug) Serial.println("# >Disconnected");
 		return ret;
     }
@@ -422,9 +381,7 @@ UDPSend AIS_NB_BC95:: sendUDPmsg( String addressI,String port,unsigned int len,c
 	{
 		_Serial->print(String(len/2));
 		//if (debug) Serial.print(String(len/2));
-	}
-	else
-	{
+	} else{
 		_Serial->print(String(len));
 		//if (debug) Serial.print(String(len));
 	}
@@ -467,76 +424,62 @@ UDPSend AIS_NB_BC95:: sendUDPmsg( String addressI,String port,unsigned int len,c
 	return(ret);
 }
 
-UDPReceive AIS_NB_BC95:: waitResponse()
-{
+UDPReceive AIS_NB_BC95:: waitResponse(){
   unsigned long current=millis();
   UDPReceive rx_ret;
 
-  if(en_rcv && (current-previous>=250) && !(_Serial->available()))
-  {
+  if(en_rcv && (current-previous>=250) && !(_Serial->available())){
       _Serial->println(F("AT+NSORF=0,100"));
 	  //Serial.println(F("AT+NSORF=0,100"));
       previous=current;
   }
-
-  if(_Serial->available())
-  {
+  if(_Serial->available()){
     char data=(char)_Serial->read();
-    if(data=='\n' || data=='\r')
-    {
-      if(k>2)
-      {
+    if(data=='\n' || data=='\r'){
+      if(k>2){
         end=true;
         k=0;
       }
       k++;
-    }
-    else
-    {
+    }else{
       input+=data;
     }
     //if(debug) Serial.println(input);
   }
   if(end){
-      if(input.indexOf(F("+NSONMI:"))!=-1)
-      {
+      if(input.indexOf(F("+NSONMI:"))!=-1){
           //if(debug) Serial.print(F("send_NSOMI: "));
           //if(debug) Serial.println(input);
-          if(input.indexOf(F("+NSONMI:"))!=-1)
-          {
+          if(input.indexOf(F("+NSONMI:"))!=-1){
             //if(debug) Serial.print(F("found NSONMI "));
             _Serial->println(F("AT+NSORF=0,100"));
             input=F("");
             send_NSOMI=true;
           }
           end=false;
-      }
-      else
-        {
+      }else{
           //if(debug) Serial.print(F("get buffer: "));
           //if(debug) Serial.println(input);
 
           end=false;
 
             int index1 = input.indexOf(F(","));
-            if(index1!=-1)
-            {
+            if(index1!=-1){
               int index2 = input.indexOf(F(","),index1+1);
 
-			  int index3 = input.indexOf(F(","),index2+1);
-			  int index4 = input.indexOf(F(","),index3+1);
-			  int index5 = input.indexOf(F(","),index4+1);
-			  int index6 = input.indexOf(F("\r"));
+			        int index3 = input.indexOf(F(","),index2+1);
+			        int index4 = input.indexOf(F(","),index3+1);
+			        int index5 = input.indexOf(F(","),index4+1);
+			        int index6 = input.indexOf(F("\r"));
 
-			  rx_ret.socket = input.substring(0,index1).toInt();
-			  rx_ret.ip_address = input.substring(index1+1,index2);
-			  rx_ret.port = input.substring(index2+1,index3).toInt();
-			  rx_ret.length = input.substring(index3+1,index4).toInt();
-			  rx_ret.data = input.substring(index4+1,index5);
-			  rx_ret.remaining_length = input.substring(index5+1,index6).toInt();
-
-			  if (debug) receive_UDP(rx_ret);
-
+			        rx_ret.socket = input.substring(0,index1).toInt();
+			        rx_ret.ip_address = input.substring(index1+1,index2);
+			        rx_ret.port = input.substring(index2+1,index3).toInt();
+			        rx_ret.length = input.substring(index3+1,index4).toInt();
+			        rx_ret.data = input.substring(index4+1,index5);
+			        rx_ret.remaining_length = input.substring(index5+1,index6).toInt();
+   
+			        if (debug) receive_UDP(rx_ret);
            }
 
           send_NSOMI=false;
@@ -546,31 +489,28 @@ UDPReceive AIS_NB_BC95:: waitResponse()
 		return rx_ret;
 }//end waitResponse
 
-UDPSend AIS_NB_BC95:: sendUDPmsg(String addressI,String port,String data)
-{
+UDPSend AIS_NB_BC95:: sendUDPmsg(String addressI,String port,String data){
 	int x_len = data.length();
 	char buf[x_len+2];
 	data.toCharArray(buf,x_len+1);
 	return(sendUDPmsg(addressI,port,x_len,buf,MODE_STRING_HEX));
 }
-UDPSend AIS_NB_BC95:: sendUDPmsgStr(String addressI,String port,String data)
-{
+
+UDPSend AIS_NB_BC95:: sendUDPmsgStr(String addressI,String port,String data){
 	sendStr = data;
 	int x_len = data.length();
 	char buf[x_len+2];
 	data.toCharArray(buf,x_len+1);
 	return(sendUDPmsg(addressI,port,x_len,buf,MODE_STRING));
-
 }
 
-bool AIS_NB_BC95:: closeUDPSocket()
-{
+bool AIS_NB_BC95:: closeUDPSocket(){
 	_Serial->println(F("AT+NSOCL=0"));
 	AIS_NB_BC95_RES res = wait_rx_bc(1000,F("OK"));
 	return(res.status);
 }
-AIS_NB_BC95_RES AIS_NB_BC95:: wait_rx_bc(long tout,String str_wait)
-{
+
+AIS_NB_BC95_RES AIS_NB_BC95:: wait_rx_bc(long tout,String str_wait){
 	unsigned long pv_ok = millis();
 	unsigned long current_ok = millis();
 	String input;
@@ -580,122 +520,102 @@ AIS_NB_BC95_RES AIS_NB_BC95:: wait_rx_bc(long tout,String str_wait)
 	res_.temp="";
 	res_.data = "";
 
-	while(flag_out)
-	{
-		if(_Serial->available())
-		{
+	while(flag_out){
+		if(_Serial->available()){
 			input = _Serial->readStringUntil('\n');
-
 			res_.temp+=input;
-			if(input.indexOf(str_wait)!=-1)
-			{
+			if(input.indexOf(str_wait)!=-1){
 				res=1;
 				flag_out=0;
-			}
-		    else if(input.indexOf(F("ERROR"))!=-1)
-			{
+			}else if(input.indexOf(F("ERROR"))!=-1){
 				res=0;
 				flag_out=0;
 			}
 		}
 		current_ok = millis();
-		if (current_ok - pv_ok>= tout)
-		{
+		if (current_ok - pv_ok>= tout){
 			flag_out=0;
 			res=0;
 			pv_ok = current_ok;
 		}
 	}
-
 	res_.status = res;
 	res_.data = input;
 	return(res_);
 }
 
 //Util Function
-void AIS_NB_BC95::printHEX(char *str)
-{
+void AIS_NB_BC95::printHEX(char *str){
   char *hstr;
   hstr=str;
   char out[3]="";
   int i=0;
   bool flag=false;
-  while(*hstr)
-  {
+  while(*hstr){
     flag=itoa((int)*hstr,out,16);
-    
-    if(flag)
-    {
+    if(flag){
       _Serial->print(out);
-
-      if(debug)
-      {
+      if(debug){
         Serial.print(out);
       }
-      
     }
     hstr++;
   }
 }
-String AIS_NB_BC95:: toString(String dat)
-{
+
+String AIS_NB_BC95:: toString(String dat){
 	String str="";
-	for(int x=0;x<dat.length();x+=2)
-  {
-      char c =  char_to_byte(dat[x])<<4 | char_to_byte(dat[x+1]);
+	for(int x=0;x<dat.length();x+=2){
+    char c =  char_to_byte(dat[x])<<4 | char_to_byte(dat[x+1]);
 	  str += c;
   }
   return(str);
 }
-String AIS_NB_BC95:: str2HexStr(String strin)
-{
+
+String AIS_NB_BC95:: str2HexStr(String strin){
   int lenuse = strin.length();
   char charBuf[lenuse*2-1];
   char strBuf[lenuse*2-1];
   String strout = "";
   strin.toCharArray(charBuf,lenuse*2) ;
-  for (int i = 0; i < lenuse; i++)
-  {
+  for (int i = 0; i < lenuse; i++){
     sprintf(strBuf, "%02X", charBuf[i]);
-
-    if (String(strBuf) != F("00") )
-    {
-           strout += strBuf;
+    if (String(strBuf) != F("00") ){
+      strout += strBuf;
     }
   }
-
   return strout;
 }
 
-char AIS_NB_BC95:: char_to_byte(char c)
-{
-	if((c>='0')&&(c<='9'))
-	{
+char AIS_NB_BC95:: char_to_byte(char c){
+	if((c>='0')&&(c<='9')){
 		return(c-0x30);
 	}
-	if((c>='A')&&(c<='F'))
-	{
+	if((c>='A')&&(c<='F')){
 		return(c-55);
 	}
 }
 
-void AIS_NB_BC95:: receive_UDP(UDPReceive rx)
-{
+void AIS_NB_BC95:: receive_UDP(UDPReceive rx){
   String dataStr;
   Serial.println(F("################################################################"));
   Serial.println(F("# Incoming Data"));
   Serial.println("# IP--> " + rx.ip_address);
   Serial.println("# Port--> " + String(rx.port));
   Serial.println("# Length--> " + String(rx.length));
-  if(sendMode == MODE_STRING_HEX)
-  {
+  if(sendMode == MODE_STRING_HEX){
 		Serial.println("# Data--> " + rx.data);
-  }
-  else
-  {
+  }else
 		dataStr = toString(rx.data);
 		Serial.println("# Data--> " + dataStr);
-  }
+  
   Serial.println("# Remaining length--> " + String(rx.remaining_length));
   Serial.println(F("################################################################"));
+}
+
+void AIS_NB_BC95:: send_sms(String phone){
+  Serial.PrintIn("Testing SMS service");
+  _Serial->println(F("AT+CMGS=?"));
+	AIS_NB_BC95_RES res = wait_rx_bc(500,F("OK"));
+
 }
