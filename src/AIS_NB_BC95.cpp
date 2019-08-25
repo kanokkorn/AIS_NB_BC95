@@ -612,8 +612,8 @@ void AIS_NB_BC95:: receive_UDP(UDPReceive rx){
   Serial.println("# Remaining length--> " + String(rx.remaining_length));
   Serial.println(F("################################################################"));
 }
-
-void AIS_NB_BC95:: send_sms(String phone){
+// TODO: Try to send some SMS 
+void AIS_NB_BC95:: send_sms(String phone_num, String payload){
   Serial.PrintIn("Testing SMS service");
   _Serial->println(F("AT+CMGS=?"));
 	AIS_NB_BC95_RES res = wait_rx_bc(500,F("OK"));

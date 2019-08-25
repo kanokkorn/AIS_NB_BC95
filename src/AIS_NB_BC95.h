@@ -50,7 +50,9 @@ struct pingRESP{
 };
 
 struct sendSMS{
-  
+  bool status;
+  String phone_num;
+  String payload;
 }
 
 class AIS_NB_BC95{
