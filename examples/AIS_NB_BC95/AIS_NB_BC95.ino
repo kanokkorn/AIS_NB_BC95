@@ -13,8 +13,7 @@ const long interval = 20000;  //millisecond
 unsigned long previousMillis = 0;
 
 long cnt = 0;
-void setup()
-{ 
+void setup(){ 
   AISnb.debug = true;
   
   Serial.begin(9600);
@@ -26,13 +25,11 @@ void setup()
   
   pingRESP pingR = AISnb.pingIP(serverIP);
   previousMillis = millis();
-
 }
-void loop()
-{ 
+
+void loop(){ 
   unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval)
-    {
+  if (currentMillis - previousMillis >= interval){
       cnt++;     
            
       // Send data in String 
@@ -47,6 +44,4 @@ void loop()
   UDPReceive resp = AISnb.waitResponse();
      
 }
-
-
 
