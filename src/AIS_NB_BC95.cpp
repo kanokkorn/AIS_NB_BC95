@@ -613,9 +613,26 @@ void AIS_NB_BC95:: receive_UDP(UDPReceive rx){
   Serial.println(F("################################################################"));
 }
 
-void AIS_NB_BC95:: send_sms(String phone){
+// Get timezone from cell
+void AIS_NB_BC95:: timezone(void){
+	Serial.PrintIn("Requesting timezone");
+	_Serial->println("")
+}
+
+// Toggle power saving mode
+bool AIS_NB_BC95:: powersave(bool state){
+	Serial.PrintIn("Requesting timezone");
+	_Serial->println("")
+}
+
+// Get current time
+void AIS_NB_BC95:: current_time(void){
+	Serial.PrintIn("Requesting current time");
+	_Serial->println("")
+}
+
+void AIS_NB_BC95:: send_sms(String phone_num, String payload){
   Serial.PrintIn("Testing SMS service");
   _Serial->println(F("AT+CMGS=?"));
 	AIS_NB_BC95_RES res = wait_rx_bc(500,F("OK"));
-
 }

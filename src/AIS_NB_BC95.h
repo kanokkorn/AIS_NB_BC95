@@ -6,12 +6,14 @@
 #include <avr.h>
 #include <Arduino.h>
 #include <Stream.h>
+#include <memory>
+#include <sstring>
 
 #define MODE_STRING 0
 #define MODE_STRING_HEX 1
 
 #if ATLSOFTSERIAL 
-	#include "AltSoftSerial.h"
+#include "AltSoftSerial.h"
 #endif
 
 struct AIS_NB_BC95_RES{
@@ -48,6 +50,11 @@ struct pingRESP{
 	String ttl;
 	String rtt;
 };
+
+struct Data{
+	String payload;
+	String phone_num;
+}
 
 class AIS_NB_BC95{
   public:
@@ -98,8 +105,14 @@ class AIS_NB_BC95{
 	  String toString(String dat);
 	  String str2HexStr(String strin);
 	  char char_to_byte(char c);
-	
+
 	  void receive_UDP(UDPReceive rx);
+	
+	  // Miscellaneous
+		void timezone(void);
+		void current_time(void);
+		bool powersave(bool state);
+		void send_sms(String number, String payload);
 
   private:
 		AIS_NB_BC95_RES wait_rx_bc(long tout,String str_wait);
